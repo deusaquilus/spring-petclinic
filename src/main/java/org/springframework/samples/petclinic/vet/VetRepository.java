@@ -43,6 +43,7 @@ public interface VetRepository extends Repository<Vet, Integer> {
 	 */
 	@Transactional(readOnly = true)
 	@Cacheable("vets")
+	@EntityGraph(attributePaths = "specialties")
 	Collection<Vet> findAll() throws DataAccessException;
 
 	/**
