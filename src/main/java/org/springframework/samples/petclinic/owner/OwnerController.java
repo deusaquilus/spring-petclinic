@@ -163,10 +163,21 @@ class OwnerController {
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
-		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
-		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
-				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
-		mav.addObject(owner);
+		OwnerHeader owner = this.owners.findOwnerHeaderById(ownerId)
+				.orElseThrow(() -> new IllegalArgumentException(
+						"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+		List<OwnerPetVisitRow> rows = this.owners.findPetVisitRowsByOwnerId(ownerId);
+		Map<Integer, PetSummary> petsById = new LinkedHashMap<>();
+		for (OwnerPetVisitRow row : rows) {
+			PetSummary pet = petsById.computeIfAbsent(row.getPetId(),
+					id -> new PetSummary(id, row.getPetName(), row.getBirthDate(), row.getTypeName()));
+			if (row.getVisitDate() != null) {
+				pet.addVisit(new PetSummary.VisitSummary(row.getVisitId(), row.getVisitDate(),
+						row.getVisitDescription()));
+			}
+		}
+		mav.addObject("owner", owner);
+		mav.addObject("pets", petsById.values());
 		return mav;
 	}
 
