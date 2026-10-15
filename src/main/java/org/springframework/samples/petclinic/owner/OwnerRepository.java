@@ -45,6 +45,7 @@ public interface OwnerRepository extends JpaRepository<Owner, Integer> {
 	 * @return a Collection of matching {@link Owner}s (or an empty Collection if none
 	 * found)
 	 */
+	@EntityGraph(attributePaths = { "pets", "pets.type" })
 	Page<Owner> findByLastNameStartingWith(String lastName, Pageable pageable);
 
 	/**
